@@ -24,3 +24,13 @@ output "lambda_role_arn" {
   value       = aws_iam_role.lambda_exec.arn
 }
 
+output "health_check_id" {
+  description = "The ID of the Route53 health check used for failover monitoring"
+  value       = aws_lambda_function.failover_orchestrator.id
+}
+
+output "failover_lambda_arn" {
+  description = "The ARN of the failover orchestrator Lambda function"
+  value       = aws_lambda_function.failover_orchestrator.arn
+}
+
