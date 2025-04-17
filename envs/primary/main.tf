@@ -94,3 +94,20 @@ module "s3" {
   glacier_days     = var.glacier_days
   expiration_days  = var.expiration_days
 }
+
+module "monitoring" {
+  source = "../../modules/monitoring"
+
+  project_name     = var.project_name
+  environment_name = var.environment_name
+  ec2_instance_id  = module.ec2.instance_id
+  rds_instance_id  = module.rds.instance_id
+
+  # Optional: Override default thresholds
+  cpu_utilization_threshold    = 75
+  memory_utilization_threshold = 75
+  disk_usage_threshold        = 80
+  rds_cpu_threshold          = 75
+  rds_storage_threshold      = 10737418240 # 10GB in bytes
+  rds_connection_threshold   = 80
+}

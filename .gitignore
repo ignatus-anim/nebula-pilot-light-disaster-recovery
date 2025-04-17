@@ -13,7 +13,16 @@ crash.*.log
 # Environment-specific terraform.tfvars
 envs/primary/terraform.tfvars
 envs/dr/terraform.tfvars
-
+envs/dr/.terraform.lock.hcl
+envs/dr/.terraform/
+envs/primary/.terraform/
+envs/primary/.terraform.lock.hcl
+envs/dr/jsonformatter.txt
+envs/primary/jsonformatter.txt
+envs/primary/plan.binary
+envs/primary/plan-output.json
+envs/primary/state-output.json
+envs/primary/terraform.tfstate
 # Exclude terraform variable override files
 *.tfvars
 *.tfvars.json
@@ -81,3 +90,4 @@ samconfig.toml
 
 # Documentation generated files
 docs/_build/
+
