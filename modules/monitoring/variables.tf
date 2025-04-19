@@ -64,3 +64,48 @@ variable "rds_connection_threshold" {
   type        = number
   default     = 100
 }
+
+variable "application_latency_threshold" {
+  description = "Application latency threshold in seconds"
+  type        = number
+  default     = 5
+}
+
+variable "error_threshold" {
+  description = "Number of 5XX errors before alerting"
+  type        = number
+  default     = 10
+}
+
+variable "packet_loss_threshold" {
+  description = "Network packet loss threshold percentage"
+  type        = number
+  default     = 1
+}
+
+variable "replica_lag_threshold" {
+  description = "Maximum acceptable RDS replica lag in seconds"
+  type        = number
+  default     = 300
+}
+
+variable "deadlock_threshold" {
+  description = "Number of deadlocks before alerting"
+  type        = number
+  default     = 5
+}
+
+variable "alb_name" {
+  description = "Name of the Application Load Balancer"
+  type        = string
+}
+
+variable "nlb_name" {
+  description = "Name of the Network Load Balancer"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID of the VPC"
+  type        = string
+}

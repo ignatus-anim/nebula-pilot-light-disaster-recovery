@@ -101,4 +101,7 @@ module "monitoring" {
   project_name         = var.project_name
   health_check_id      = module.lambda.health_check_id
   failover_lambda_arn  = module.lambda.failover_lambda_arn
+  ec2_instance_id = module.ec2.instance_id
+  rds_instance_id = module.rds.db_instance_id
+  environment_name     = var.environment_name
 }

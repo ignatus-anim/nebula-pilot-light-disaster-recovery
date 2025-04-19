@@ -12,13 +12,13 @@ resource "aws_security_group" "ec2_sg" {
     description = "Allow SSH access"
   }
 
-  # Allow HTTP inbound
+  # Allow HTTP inbound from ALB only
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTP access"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "Allow HTTP access from ALB only"
   }
 
   # Allow all outbound

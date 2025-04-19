@@ -34,3 +34,13 @@ output "failover_lambda_arn" {
   value       = aws_lambda_function.failover_orchestrator.arn
 }
 
+output "lambda_security_group_id" {
+  description = "The ID of the Lambda security group"
+  value       = aws_security_group.lambda_sg.id
+}
+
+output "cloudwatch_log_group_name" {
+  description = "The name of the CloudWatch log group for Lambda functions"
+  value       = aws_cloudwatch_log_group.lambda_log_group.name
+}
+

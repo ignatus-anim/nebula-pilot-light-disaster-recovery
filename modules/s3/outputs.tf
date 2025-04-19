@@ -19,3 +19,18 @@ output "dr_bucket_arn" {
   value       = aws_s3_bucket.nebula_dr_bucket.arn
 }
 
+output "primary_bucket_domain_name" {
+  description = "The domain name of the primary bucket"
+  value       = aws_s3_bucket.nebula_primary_bucket.bucket_domain_name
+}
+
+output "dr_bucket_domain_name" {
+  description = "The domain name of the DR bucket"
+  value       = aws_s3_bucket.nebula_dr_bucket.bucket_domain_name
+}
+
+output "replication_role_arn" {
+  description = "The ARN of the IAM role used for bucket replication"
+  value       = aws_iam_role.replication_role.arn
+}
+
