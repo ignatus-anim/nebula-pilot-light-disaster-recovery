@@ -100,10 +100,10 @@ variable "alb_name" {
   type        = string
 }
 
-variable "nlb_name" {
-  description = "Name of the Network Load Balancer"
-  type        = string
-}
+# variable "nlb_name" {
+#   description = "Name of the Network Load Balancer"
+#   type        = string
+# }
 
 variable "vpc_id" {
   description = "ID of the VPC"

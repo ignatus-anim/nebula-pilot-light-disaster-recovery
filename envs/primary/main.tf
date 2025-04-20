@@ -98,10 +98,17 @@ module "s3" {
 module "monitoring" {
   source = "../../modules/monitoring"
 
+  providers = {
+    aws.primary = aws
+    aws.dr      = aws.dr_region
+  }
+
   project_name         = var.project_name
   health_check_id      = module.lambda.health_check_id
   failover_lambda_arn  = module.lambda.failover_lambda_arn
-  ec2_instance_id = module.ec2.instance_id
-  rds_instance_id = module.rds.db_instance_id
+  ec2_instance_id      = module.ec2.instance_id
+  rds_instance_id      = module.rds.db_instance_id
   environment_name     = var.environment_name
+  vpc_id              = module.vpc.vpc_id
+  alb_name            = module.ec2.alb_app_name
 }
