@@ -39,7 +39,7 @@ variable "instance_type" {
 variable "key_name" {
   description = "SSH key pair name"
   type        = string
-  default     = "sandbox_ssh.pem"
+  default     = "nebula-key.pem"
 }
 
 variable "min_size" {

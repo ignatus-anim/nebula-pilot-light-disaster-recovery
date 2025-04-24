@@ -8,7 +8,7 @@ resource "aws_lb" "app_alb" {
   name               = "${var.environment}-app-alb"
   internal           = false  # Public-facing ALB
   load_balancer_type = "application"
-  security_groups    = var.security_group_ids
+  security_groups    = [aws_security_group.alb_sg.id]
   subnets            = var.subnet_ids  # Public subnets
 
   tags = {
@@ -51,7 +51,7 @@ resource "aws_lb" "dr-app_alb" {
   name               = "dr-app-alb"
   internal           = false  # Public-facing ALB
   load_balancer_type = "application"
-  security_groups    = var.dr_security_group_ids
+  security_groups    = [aws_security_group.dr-alb_sg.id]
   subnets            = var.dr_subnet_ids  # Public subnets
 
   tags = {
@@ -86,5 +86,47 @@ resource "aws_lb_listener" "dr_app_listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.dr_app_tg.arn
+  }
+}
+
+resource "aws_security_group" "alb_sg" {
+  name        = "${var.environment}-alb-sg"
+  description = "Allow HTTP/HTTPS to ALB"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Security group for ALB in DR region
+resource "aws_security_group" "dr-alb_sg" {
+  name        = "${var.environment}-alb-sg"
+  description = "Allow HTTP/HTTPS to ALB"
+  provider = aws.dr
+  vpc_id      = var.dr_vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }

@@ -50,7 +50,7 @@ resource "aws_security_group" "db_sg" {
     from_port   = 3306  # MySQL
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = ["12.0.0.0/16"]  # Restrict to VPC CIDR
+    cidr_blocks = ["10.0.0.0/16"]  # Restrict to VPC CIDR
   }
 
   egress {
@@ -103,7 +103,7 @@ resource "aws_security_group" "dr_db_sg" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = ["12.0.0.0/16"]  # DR VPC CIDR
+    security_groups = var.ec2_security_group_id
   }
 
   egress {

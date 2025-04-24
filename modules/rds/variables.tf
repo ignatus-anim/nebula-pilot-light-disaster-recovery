@@ -52,3 +52,7 @@ variable "dr_private_subnet_ids" {
   description = "List of private subnet IDs in DR region"
   type        = list(string)
 }
+
+variable "ec2_security_group_id" {
+  type = list(string)
+}

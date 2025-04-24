@@ -19,17 +19,9 @@ variable "dr_subnet_ids" {
 }
 
 
-variable "dr_security_group_ids" {
-  description = "Security group IDs for ALB"
-  type        = list(string)
-}
 
 variable "environment" {
   description = "Environment (primary/dr)"
   type        = string
 }
 
-variable "security_group_ids" {
-  description = "Security group IDs for ALB"
-  type        = list(string)
-}

@@ -44,7 +44,7 @@ resource "aws_launch_template" "app_lt" {
                 -e MYSQL_HOST=${var.db_host} \
                 -e MYSQL_DB=${var.db_name} \
                 -p 80:5000 \
-                gideontee/flask-blog:latest
+                ignatusa3/blog-project:latest
               EOF
   )
 
@@ -110,7 +110,7 @@ resource "aws_security_group" "app_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    security_groups = var.load_balancer_sg_id
+    security_groups = [var.load_balancer_sg_id]
   }
 
   egress {
@@ -139,7 +139,7 @@ resource "aws_security_group" "dr-app_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    security_groups = var.dr_load_balancer_sg_id
+    security_groups = [var.dr_load_balancer_sg_id]
   }
 
   egress {

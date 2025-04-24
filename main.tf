@@ -28,8 +28,6 @@ module "primary_load_balancer" {
   environment        = "primary"
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.public_subnet_ids # Public subnets for ALB
-  security_group_ids = [module.vpc.alb_security_group_id]
-  dr_security_group_ids = [module.vpc.dr_alb_security_group_id]
   dr_subnet_ids = module.vpc.dr_public_subnet_ids
   dr_vpc_id          = module.vpc.dr_vpc_id
 }
@@ -52,10 +50,10 @@ module "primary_compute" {
   region                   = var.region
   aws_access_key           = var.aws_access_key
   aws_secret_key           = var.aws_secret_key
-  load_balancer_sg_id      = module.primary_load_balancer.load_balancer_sg_id
+  load_balancer_sg_id      = module.primary_load_balancer.alb_security_group_id
   dr-subnet_ids = module.vpc.dr_public_subnet_ids
   dr_vpc_id                = module.vpc.dr_vpc_id
-  dr_load_balancer_sg_id   = module.primary_load_balancer.dr_load_balancer_sg_id
+  dr_load_balancer_sg_id   = module.primary_load_balancer.dr_alb_security_group_id
   dr-target_group_arns = [module.primary_load_balancer.dr_target_group_arn]
   dr_db_host               = module.primary_db.dr_replica_db_endpoint
   dr_s3_bucket_name        = module.storage.dr_s3_bucket_name
@@ -69,7 +67,7 @@ module "primary_db" {
   private_subnet_ids = module.vpc.private_subnet_ids
   database_engine    = "mysql"
   db_name            = var.db_name
-
+  ec2_security_group_id = [module.primary_compute.security_group_id]
   dr_private_subnet_ids = module.vpc.dr_private_subnet_ids
   dr_vpc_id             = module.vpc.dr_vpc_id
 }
