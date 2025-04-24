@@ -18,12 +18,12 @@ output "database_config_version" {
 #   value       = local.parameter_path
 # }
 
-output "kms_key_arn" {
-  description = "The ARN of the KMS key used for parameter encryption"
-  value       = aws_kms_key.ssm_key.arn
-}
+# output "kms_key_arn" {
+#   description = "The ARN of the KMS key used for parameter encryption"
+#   value       = aws_kms_key.ssm_key.arn
+# }
 
-output "kms_key_id" {
-  description = "The ID of the KMS key used for parameter encryption"
-  value       = aws_kms_key.ssm_key.key_id
-}
+# output "kms_key_id" {
+#   description = "The ID of the KMS key used for parameter encryption"
+#   value       = aws_kms_key.ssm_key.key_id
+# }

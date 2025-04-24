@@ -1,33 +1,13 @@
-variable "environment_name" {
+variable "environment" {
+  description = "Environment for deployment"
   type = string
 }
 
-variable "region" {
-  type = string
+variable "ec2_role_arn" {
+  description = "iam role for ec2 to access the s3 bucket"
 }
 
-variable "project_name" {
-  type = string
-  default = "nebula"
+variable "dr_ec2_role_arn" {
+  description = "iam role for ec2 to access the s3 bucket"
 }
 
-variable "ia_days" {
-  type = number
-  default = 90
-}
-
-variable "glacier_days" {
-  type = number
-  default = 180
-}
-
-variable "expiration_days" {
-  type = number
-  default = 365
-}
-
-variable "tags" {
-  description = "A map of tags to apply to resources"
-  type        = map(string)
-  default     = {}
-}

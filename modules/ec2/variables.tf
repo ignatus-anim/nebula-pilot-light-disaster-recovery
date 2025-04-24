@@ -1,85 +1,89 @@
-
-variable "region" {
-  type = string
+variable "environment" {
+  description = "Environment (primary/dr)"
+  type        = string
 }
 
-# Removed ami_id variable - Using data source aws_ami.ubuntu_22_04 instead
-# variable "ami_id" {
-#   type = string
-# }
-
-variable "instance_type" {
-  type = string
+variable "vpc_id" {
+  description = "VPC ID where resources will be deployed"
+  type        = string
 }
-
-variable "subnet_id" {
-  type = string
-}
-
-variable "key_pair_name" {
-  type = string
-}
-
-variable "project_name" {
-  type = string
-}
-
-variable "tags" {
-  type = map(string)
-}
-variable "environment_name" {
-  type = string
-}
-
-# Removed asg_min_size - Always using 0 for DR ASG
-# variable "asg_min_size" {
-#   type = number
-# }
 
 variable "subnet_ids" {
-  description = "List of subnet IDs for the ASG"
+  description = "List of subnet IDs for ASG"
   type        = list(string)
 }
 
-variable "asg_max_size" {
-  description = "Maximum size of the Auto Scaling Group"
-  type        = number
-  default     = 3
+variable "dr-subnet_ids" {
+  description = "List of subnet IDs for ASG"
+  type        = list(string)
 }
 
-# Removed asg_desired_size - Always using 0 for DR ASG cost optimization
-# variable "asg_desired_size" {
-#   type = number
-# }
-
-variable "vpc_id" {
-  type = string
-}
-variable "dr_region" {
-  type = string
-}
-
-variable "db_password" {
+variable "ami_id" {
+  description = "AMI ID for instances (defaults to latest Ubuntu 22.04 LTS)"
   type        = string
-  description = "Password for MySQL root user"
-  sensitive   = true
+  default     = null  # Will use SSM Parameter lookup if null
 }
 
-variable "enable_ec2" {
-  description = "Whether to create EC2 resources"
-  type        = bool
-  default     = true
+variable "dr_ami_id" {
+  description = "AMI created from the primary running instance by SSM"
+  type        = string
+  default     = "ami-084568db4383264d4"  # Will use SSM Parameter lookup if null
 }
 
-variable "enable_dr_pilot_light" {
-  description = "Whether to create DR ASG resources"
-  type        = bool
-  default     = false
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t2.micro"
 }
 
-# Removed dr_ami_id - Using data source aws_ami.latest_dr_ami instead
-# variable "dr_ami_id" {
-#   description = "AMI ID to use in DR region"
-#   type        = string
-#   default     = null
-# }
+variable "key_name" {
+  description = "SSH key pair name"
+  type        = string
+  default     = "sandbox_ssh.pem"
+}
+
+variable "min_size" {
+  description = "Minimum number of instances in ASG"
+  type        = number
+  default     = 1
+}
+
+variable "max_size" {
+  description = "Maximum number of instances in ASG"
+  type        = number
+  default     = 2
+}
+
+variable "target_group_arns" {
+  description = "ARNs of target groups to attach to the ASG"
+  type        = list(string)
+  default     = []
+}
+
+variable "dr-target_group_arns" {
+  description = "ARNs of target groups to attach to the ASG"
+  type        = list(string)
+}
+
+variable "iam_instance_profile_arn" {
+  type = string
+}
+
+variable "aws_access_key" {}
+variable "aws_secret_key" {}
+variable "region" {}
+variable "dr_region" {default = "us-east-1"}
+variable "s3_bucket_name" {}
+variable "db_username" {}
+variable "db_password" {}
+variable "db_host" {}
+variable "db_name" {}
+variable "load_balancer_sg_id" {}
+variable "dr_s3_bucket_name" {}
+variable "dr_db_host" {}
+
+variable "dr_vpc_id" {
+  description = "DR region VPC id"
+}
+
+variable "dr_load_balancer_sg_id" {}

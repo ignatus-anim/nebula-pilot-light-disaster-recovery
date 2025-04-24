@@ -1,6 +1,6 @@
 # Local .terraform directories
 **/.terraform/*
-
+nebula-key.pem
 # Terraform state files
 *.tfstate
 *.tfstate.*
@@ -23,6 +23,8 @@ envs/primary/plan.binary
 envs/primary/plan-output.json
 envs/primary/state-output.json
 envs/primary/terraform.tfstate
+envs/primary/nebula-key.pem
+
 # Exclude terraform variable override files
 *.tfvars
 *.tfvars.json
