@@ -13,6 +13,11 @@ output "security_group_id" {
   value       = aws_security_group.app_sg.id
 }
 
+output "dr_security_group_id" {
+  description = "ID of the dr security group"
+  value       = aws_security_group.dr-app_sg.id
+}
+
 output "primary_instance_id" {
   value = data.aws_instance.app_instance.id
 }

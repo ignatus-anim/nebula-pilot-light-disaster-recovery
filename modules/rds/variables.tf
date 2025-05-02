@@ -56,3 +56,7 @@ variable "dr_private_subnet_ids" {
 variable "ec2_security_group_id" {
   type = list(string)
 }
+
+variable "dr_ec2_security_group_id" {
+  type = list(string)
+}

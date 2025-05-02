@@ -134,7 +134,7 @@ resource "aws_iam_policy" "replication" {
   })
 }
 
-# ttach Policy to Role
+# Attach Policy to Role
 resource "aws_iam_role_policy_attachment" "replication" {
   role       = aws_iam_role.replication.name
   policy_arn = aws_iam_policy.replication.arn

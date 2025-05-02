@@ -1,7 +1,7 @@
 # Nebula - AWS Pilot Light Disaster Recovery Solution
 
 ## Overview
-This repository contains the infrastructure-as-code implementation of a disaster recovery (DR) solution using the Pilot Light strategy on AWS. The solution ensures high availability of critical services (EC2, RDS, S3, and Lambda) with minimal overhead and quick recovery capabilities.
+This repository contains the infrastructure-as-code implementation of a disaster recovery (DR) solution using the Pilot Light strategy on AWS. The solution ensures high availability of critical services (EC2, RDS, S3) with minimal overhead and quick recovery capabilities.
 
 ## Architecture
 ![Nebula DR Architecture](docs/diagrams/nebula-dr.png)
@@ -27,24 +27,19 @@ The solution implements a pilot light disaster recovery strategy across two AWS 
 - Versioning enabled for data protection
 - Lifecycle policies for cost optimization
 
-#### 4. Lambda Functions
-- Pre-deployed functions in DR region (disabled by default)
-- Event source configurations ready for failover
-- Configuration management via AWS Systems Manager
 
 ## Project Structure
 ```
 ├── docs/                    # Documentation files
-├── envs/                    # Environment-specific configurations
-│   ├── dr/                  # DR region configuration
-│   └── primary/            # Primary region configuration
+├── global_accelerator_/  
 └── modules/                # Terraform modules
-    ├── asg/                # Auto Scaling Group configuration
+    ├── alb/                # Application Load Balancer configuration
     ├── ec2/                # EC2 instance configuration
     ├── lambda/             # Lambda functions configuration
-    ├── monitoring/         # CloudWatch monitoring setup
     ├── rds/                # RDS configuration
-    ├── route53/            # DNS configuration
+    ├── failover/           # Failover processes
+    ├── iam/                # IAM configurations
+    ├── ssm/                # SSM parameter store configs
     └── s3/                 # S3 bucket configuration
 ```
 
@@ -55,17 +50,9 @@ The solution implements a pilot light disaster recovery strategy across two AWS 
 - Appropriate IAM permissions
 
 ## Deployment
-1. Configure variables in `envs/primary/terraform.tfvars` and `envs/dr/terraform.tfvars`
-2. Deploy primary region:
+1. Configure variables in `terraform.tfvars`
+2. Deploy:
    ```bash
-   cd envs/primary
-   terraform init
-   terraform plan
-   terraform apply
-   ```
-3. Deploy DR region:
-   ```bash
-   cd ../dr
    terraform init
    terraform plan
    terraform apply
@@ -78,7 +65,7 @@ The solution implements a pilot light disaster recovery strategy across two AWS 
 4. **DNS Cutover**: Route 53 updates for traffic redirection
 5. **Validation**: System health verification
 
-Detailed runbook available in [docs/runbook.md](docs/runbook.md)
+Detailed runbook available in [docs/recovery_strategy.md](docs/recovery_strategy.md)
 
 ## Maintenance
 - Regular testing of failover procedures
@@ -102,9 +89,3 @@ Detailed runbook available in [docs/runbook.md](docs/runbook.md)
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
-
-## License
-[Specify your license here]
-
-## Support
-[Specify support contact information]

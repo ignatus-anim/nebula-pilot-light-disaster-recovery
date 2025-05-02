@@ -2,7 +2,11 @@ variable "environment" {
   description = "Environment (primary/dr)"
   type        = string
 }
-
+variable "project_name" {
+  description = "Name of Project"
+  type = string
+  default = "nebula"
+}
 variable "vpc_id" {
   description = "VPC ID where resources will be deployed"
   type        = string

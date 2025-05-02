@@ -1,250 +1,125 @@
-# Nebula DR Solution - Recovery Strategy Documentation
+# 🌐 Disaster Recovery Strategy – Project Nebula
 
 ## Overview
-This document outlines the disaster recovery (DR) strategy for the Nebula solution, implementing an automated failover mechanism using AWS Lambda as the primary orchestrator. The strategy ensures business continuity with minimal downtime during regional failures.
 
-## Architecture Components
+This document outlines the **Disaster Recovery (DR) strategy** for Project Nebula. Our goal is to maintain **high availability** and ensure **business continuity** in the event of a failure in the **primary AWS region (`eu-west-1`)** by seamlessly failing over to the **disaster recovery region (`us-east-1`)**.
 
-### 1. Monitoring Layer
-- **CloudWatch Alarms**
-  - EC2 instance health (CPU, Memory, Disk)
-  - RDS metrics (CPU, Storage, Connections)
-  - Application endpoint availability
-  - Network connectivity status
 
-- **Custom Metrics**
-  - Application-specific health checks
-  - Business logic validation
-  - Performance indicators
-  - Resource utilization
+## 🔧 Infrastructure Deployment
 
-### 2. Orchestration Layer
-- **Primary Lambda (Health Monitor)**
-  ```python
-  # Monitors health metrics
-  # Evaluates failover conditions
-  # Triggers failover process when needed
-  ```
+All resources are provisioned using **Terraform**. The infrastructure is designed to follow the **Pilot Light strategy**, where minimal services run in the DR region until a failover is required.
 
-- **Failover Lambda (DR Orchestrator)**
-  ```python
-  # Executes failover procedures
-  # Manages resource scaling
-  # Handles database promotion
-  # Updates configurations
-  ```
 
-### 3. State Management
-- **DynamoDB Failover Table**
-  - Current failover state
-  - Resource status tracking
-  - Audit trail
-  - Rollback information
+## 🌍 Global Traffic Management
 
-## Failover Process Flow
+* **AWS Global Accelerator** is used to route user traffic to the correct region.
+* It points to **two Application Load Balancers (ALBs)**:
 
-### 1. Detection Phase
-```
-CloudWatch Alarms → SNS → Lambda Trigger
-```
+  * One in the **Primary Region** (`eu-west-1`)
+  * One in the **DR Region** (`us-east-1`)
 
-#### Monitored Metrics
-- EC2 CPU Utilization (>80% for 10 minutes)
-- RDS Storage Space (<10GB for 10 minutes)
-- Database Connections (>100 for 10 minutes)
-- Application Response Time (>5s for 5 minutes)
 
-### 2. Assessment Phase
-1. **Primary Region Validation**
-   - Confirm multiple metric failures
-   - Verify it's not a false positive
-   - Check for planned maintenance
+## 🖥️ Application Layer (EC2)
 
-2. **DR Region Readiness**
-   - Validate resource availability
-   - Check replication status
-   - Verify configuration readiness
+* **Primary Region**:
 
-### 3. Execution Phase
+  * EC2 instances are managed using **Launch Templates** and **Auto Scaling Groups (ASG)**.
+  * ASG `desired_capacity` is set to **1**.
+* **DR Region**:
 
-#### Step 1: Database Failover
-```python
-# Promote RDS read replica
-rds_client.promote_read_replica(
-    DBInstanceIdentifier=dr_instance_id
-)
-```
+  * ASG is created but `desired_capacity` is set to **0**.
+  * Instances are spun up only during failover.
 
-#### Step 2: Compute Resource Activation
-```python
-# Scale up DR Auto Scaling Group
-asg_client.update_auto_scaling_group(
-    AutoScalingGroupName=dr_asg_name,
-    MinSize=1,
-    MaxSize=3,
-    DesiredCapacity=1
-)
-```
 
-#### Step 3: Configuration Updates
-```python
-# Update SSM parameters
-ssm_client.put_parameter(
-    Name=f'/nebula/{environment}/database_endpoint',
-    Value=new_db_endpoint,
-    Type='String',
-    Overwrite=True
-)
-```
+## 🛢️ Database Layer (MySQL RDS)
 
-### 4. Validation Phase
-1. **Database Checks**
-   - Replication completion
-   - Data consistency
-   - Connection verification
+* **Primary Region** hosts the **main RDS instance**.
+* **DR Region** contains a **read replica** of the RDS.
+* During failover, the **read replica is promoted** to a standalone primary DB.
 
-2. **Application Validation**
-   - Service health checks
-   - Endpoint availability
-   - Performance metrics
 
-## Recovery Time Objectives
+## 🗃️ Storage Layer (S3)
 
-### RTO Breakdown
-| Component | Estimated Time |
-|-----------|---------------|
-| Detection | 2-3 minutes |
-| Assessment | 1-2 minutes |
-| DB Promotion | 5-10 minutes |
-| ASG Scaling | 3-5 minutes |
-| Config Updates | 1-2 minutes |
-| **Total RTO** | **12-22 minutes** |
+* Two S3 buckets:
 
-### RPO Considerations
-- Database replication lag (<30 seconds)
-- S3 cross-region replication (near real-time)
-- Configuration synchronization (immediate)
+  * One in **Primary**
+  * One in **DR**
+* **Cross-region replication (CRR)** is enabled to sync objects from Primary to DR.
 
-## Implementation Details
 
-### 1. Lambda Configuration
+## 🛡️ IAM Roles and Permissions
 
-#### Primary Lambda (Health Monitor)
-- Execution frequency: Every 1 minute
-- Timeout: 30 seconds
-- Memory: 128 MB
-- IAM permissions:
-  - CloudWatch metrics read
-  - SNS publish
-  - DynamoDB write
+* IAM roles provide:
 
-#### Failover Lambda (DR Orchestrator)
-- Timeout: 15 minutes
-- Memory: 256 MB
-- IAM permissions:
-  - RDS modify
-  - ASG update
-  - SSM parameter write
-  - DynamoDB write
+  * EC2 access to S3
+  * Lambda permissions
+  * RDS access
+  * General service access control
+* These roles are created using a dedicated **IAM module**.
 
-### 2. State Management Schema
 
-```json
-{
-  "failover_id": "string",
-  "start_time": "timestamp",
-  "status": "string",
-  "steps_completed": ["string"],
-  "current_step": "string",
-  "errors": ["string"],
-  "completion_time": "timestamp"
-}
-```
+## 🔐 Secrets Management
 
-### 3. Communication Flow
-- SNS Topics:
-  - `nebula-failover-alerts`
-  - `nebula-failover-status`
-  - `nebula-ops-notifications`
+* **AWS Systems Manager (SSM) Parameter Store** is used for:
 
-## Testing and Validation
+  * Storing database endpoints
+  * S3 bucket names
+  * Other sensitive configuration values
 
-### 1. Regular Testing Schedule
-- Full failover test: Quarterly
-- Component tests: Monthly
-- Health check validation: Weekly
 
-### 2. Test Scenarios
-1. **Database Failover**
-   - RDS replica promotion
-   - Data consistency check
-   - Application reconnection
+## 🌐 Networking (VPC)
 
-2. **Compute Resource Scaling**
-   - ASG expansion
-   - Instance health
-   - Application deployment
+* Custom **VPCs** are configured in both regions.
+* Subnets, route tables, internet gateways, and security groups are created using the **VPC module**.
 
-3. **Configuration Updates**
-   - Parameter updates
-   - Application reconfiguration
-   - Service discovery
 
-## Rollback Procedures
+## ⚠️ Failover Mechanism (Failover Module)
 
-### 1. Pre-Rollback Checks
-- Primary region health
-- Resource availability
-- Data synchronization
+### ☁️ CloudWatch Alarms
 
-### 2. Rollback Steps
-1. Scale down DR resources
-2. Promote primary database
-3. Update configurations
-4. Validate applications
+* Monitors:
 
-## Maintenance and Updates
+  * ALB health in the primary region
+  * EC2 CPU utilization
 
-### 1. Regular Tasks
-- Review and update thresholds
-- Validate IAM permissions
-- Update documentation
-- Test automation scripts
+### 📝 SSM Document
 
-### 2. Change Management
-- Version control for Lambda functions
-- Configuration change tracking
-- Documentation updates
-- Team training
+* Defines a runbook to:
 
-## Security Considerations
+  * Create **AMI** from the latest EC2
+  * Trigger failover automation
 
-### 1. Access Control
-- IAM role-based access
-- Least privilege principle
-- Regular permission audits
-- Secure parameter storage
+### 🧠 Lambda Function (Failover Logic)
 
-### 2. Encryption
-- Data encryption in transit
-- Storage encryption at rest
-- Secure parameter handling
-- Key rotation policy
+The Lambda is triggered when CloudWatch detects failure and executes the following:
 
-## Support and Escalation
+1. **Promotes RDS Read Replica** to primary in DR.
+2. **Updates DR ASG**:
 
-### 1. First Response
-- On-call engineer
-- Automated notifications
-- Initial assessment
-- Team mobilization
+   * Sets `desired_capacity` from `0` to `1`
+   * Spins up EC2 in the DR region.
+3. **Updates SSM Parameters**:
 
-### 2. Escalation Path
-1. On-call Engineer
-2. DevOps Lead
-3. Infrastructure Manager
-4. CTO
+   * RDS endpoint to DR database
+   * S3 bucket references to DR bucket
 
-## Documentation Updates
-Last updated: [Current Date]
-Next review: [Current Date + 3 months]
+
+## ✅ Post-Failover State
+
+After failover:
+
+* Traffic is routed to **DR ALB** by Global Accelerator.
+* EC2 and RDS are **fully active** in the DR region.
+* Users experience **minimal disruption**.
+
+
+## 🔁 Recovery Back to Primary (Optional)
+
+To return to the primary region once it's stable:
+
+* Recreate the AMI and EC2 instance
+* Resync the database (reverse replication or dump & restore)
+* Reset Global Accelerator to point back to primary ALB
+* Set DR ASG desired capacity back to `0`
+
+
