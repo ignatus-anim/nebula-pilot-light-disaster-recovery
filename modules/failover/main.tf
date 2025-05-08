@@ -110,7 +110,7 @@ resource "aws_iam_role_policy" "ssm_automation_policy" {
 resource "aws_cloudwatch_event_rule" "ami_creation_schedule" {
   name                = "AMICreationSchedule"
   description         = "Triggers SSM Automation to create AMI daily"
-  schedule_expression = "cron(0 2 * * ? *)" # Run daily at 2 AM
+  schedule_expression = "cron(0 13 * * ? *)" # Run daily at 1 PM UTC
 }
 
 resource "aws_cloudwatch_event_target" "ami_creation_target" {
